@@ -1,0 +1,198 @@
+<html>
+
+<head>
+  <title></title>
+  <meta name="viewport" charset="UTF-8" content="width=device-width, initial-scale=1.0">
+  <script type="text/javascript" src="gauge.min.js"></script>
+  <style>
+    body {
+      background-color: #708090;
+    }
+
+    .footer {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+    }
+
+    .row {
+      display: table;
+      border-spacing: 25px;
+    }
+
+    .column {
+      display: table-cell;
+    }
+
+
+    .gauge-label {
+      text-align: center;
+    }
+
+
+    .gauge-text {
+      position: absolute;
+      top: 90%;
+      right: 48%;
+    }
+
+    .gauge {
+      position: relative;
+      width: 300px;
+      height: auto;
+    }
+
+    @media screen and (max-width: 750px) {
+      .row {
+        display: block;
+      }
+      .column {
+        display: inline-block;
+      }
+    }
+  </style>
+</head>
+
+<body onload="script();">
+    <form action="/reset" method="post">
+      <input type="submit" value="Clear File">
+    </form>
+</body>
+<script>
+  var getJSON = function(url, callback) {
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', url, true);
+    xhr.responseType = 'json';
+    xhr.onload = function() {
+      var status = xhr.status;
+      if (status === 200) {
+        callback(null, xhr.response);
+      } else {
+        callback(status, xhr.response);
+      }
+    };
+    xhr.send();
+  };
+
+  function createGauge(id, label) {
+    var canvadId = "Canvas" + id;
+    var valueId = "Value" + id;
+
+    var gaugeString = "";
+    gaugeString += "    <div class=\"gauge column\">";
+    gaugeString += "      <canvas id=" + canvadId + ">";
+    gaugeString += "      This Browser dosen't support HTML 5 please update to view this element";
+    gaugeString += "    <\/canvas>";
+    gaugeString += "      <div class=\"gauge-label\">";
+    gaugeString += "        <span id=" + valueId + " style=\"font-size: 22px !important; color: #29B6F6;\"><\/span>";
+    gaugeString += "        <span>&deg;C<\/span>";
+    gaugeString += "      <\/div>";
+    gaugeString += "      <div class=\"gauge-label\">" + label + "<\/div>";
+    gaugeString += "    <\/div>";
+    document.write(gaugeString);
+
+    var opts = {
+      fontSize: 39,
+      angle: 0.06, // The span of the gauge arc
+      lineWidth: 0.12, // The line thickness
+      radiusScale: 1, // Relative radius
+      pointer: {
+        length: 0.55, // // Relative to gauge radius
+        strokeWidth: 0.029, // The thickness
+        color: '#000000' // Fill color
+      },
+      renderTicks: {
+        divisions: 9,
+        divWidth: 1.1,
+        divLength: 0.7,
+        divColor: '#333333',
+        subDivisions: 4,
+        subLength: 0.5,
+        subWidth: 0.6,
+        subColor: '#666666'
+      },
+      staticLabels: {
+        font: "10px sans-serif", // Specifies font
+        labels: [-20, 0, 20, 40, 60, 80, 100, 120, 140, 160], // Print labels at these values
+        color: "#000000", // Optional: Label text color
+        fractionDigits: 0 // Optional: Numerical precision. 0=round off.
+      },
+      staticZones: [{
+          strokeStyle: "#F03E3E",
+          min: 100,
+          max: 160
+        }, // Red from 100 to 130
+        {
+          strokeStyle: "#FFDD00",
+          min: 50,
+          max: 100
+        }, // Yellow
+        {
+          strokeStyle: "#30B32D",
+          min: 15,
+          max: 50
+        }, // Green
+        {
+          strokeStyle: "#FFDD00",
+          min: 0,
+          max: 15
+        }, // Yellow
+        {
+          strokeStyle: "#F03E3E",
+          min: -20,
+          max: 0
+        } // Red
+      ],
+      limitMax: false, // If false, max value increases automatically if value > maxValue
+      limitMin: false, // If true, the min value of the gauge will be fixed
+      colorStart: '#6FADCF', // Colors
+      colorStop: '#00CED1', // just experiment with them
+      strokeColor: '#E0E0E0', // to see which ones work best for you
+      generateGradient: true,
+      highDpiSupport: true, // High resolution support
+
+    };
+    var target = document.getElementById(canvadId); // your canvas element
+    var gauge = new Gauge(target).setOptions(opts); // create sexy gauge!
+    gauge.maxValue = 160; // set max gauge value
+    gauge.setMinValue(-20); // Prefer setter over gauge.minValue = 0
+    gauge.animationSpeed = 32; // set animation speed (32 is default value)
+    var value = 0;
+    gauge.set(value); // set actual value
+    var valueText = document.getElementById(valueId)
+    gauge.setTextField(valueText, 2);
+
+    return gauge;
+  }
+
+
+  var rowStart = "<div class=\"row\">";
+  var rowEnd = "    <\/div>";
+  var gauges = [];
+
+  var i;
+  for (i = 0; i < 8; i++) {
+    if (i % 4 == 0)
+      document.write(rowStart);
+    gauges.push(createGauge(i, "Sensor " + i));
+    if (i % 4 == 3)
+      document.write(rowEnd);
+  }
+
+  setInterval(function() {
+    getJSON("/temperature.json", function(err, data) {
+      if (err !== null) {
+        gauges.forEach(function(gauge) {
+          gauge.set(Math.floor(Math.random() * (100 - 0 + 1)) + 0)
+        });
+      } else {
+        gauges.forEach(function(gauge, idx) {
+          gauge.set(data.values[idx])
+        });
+      }
+    });
+
+  }, 3000);
+</script>
+
+</html>
