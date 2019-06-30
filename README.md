@@ -1,7 +1,7 @@
 # duck-sparrow-link
 LoRa based bakcend for Sparrow Mesh
 
-#Overview
+# Overview
 This repository helps establish connecetion from smartphones to IBM watson backend via network of LoRa/BLE/WiFi interfaces.
 The hardware primarily consists of 2 types of devices Mama and Papa devices. The Mama devices connect to smartphones via BLE and Wifi
 and recieve data which is forwarded to Papa devices over LoRa. The Papa devices on recieving this data parse it and publish it on a 
