@@ -14,8 +14,8 @@
 #include <ArduinoJson.h>
 #include <PubSubClient.h>
 
-const char* ssid = "........";
-const char* password = "........";
+const char* ssid = "..";
+const char* password = "....";
 const char* mqtt_server = "18.221.210.97";
 
 String topicsToSubscribe[16];
@@ -25,7 +25,7 @@ byte subscribeFlag[16]={0};
 WiFiClient espClient;
 PubSubClient client(espClient);
 
-StaticJsonBuffer<400> jsonBuffer;
+StaticJsonBuffer<4096> jsonBuffer;
 
 long lastMsg = 0;
 char msg[50];
@@ -34,9 +34,9 @@ uint32_t value = 0;
 
 String subscribeTopics[16];
 const int blueLED = LED_BUILTIN; 
-byte localAddress = 0xCC;     // address of this device
+byte localAddress = 0xBB;     // address of this device
 byte msgCount = 0;            // count of outgoing messages
-byte destination = 0xBB;      // destination to send to
+byte destination = 0xCC;      // destination to send to
 long lastSendTime = 0;        // last send time
 int interval = 2000;          // interval between sends
 
@@ -77,7 +77,6 @@ void loop() {
     reconnect();
   }
   client.loop();
-  LoRa.receive();                     // go back into receive mode
 }
 
 void reconnect() {
@@ -137,7 +136,10 @@ void sendMessege(String outgoing) {
   LoRa.write(outgoing.length());        // add payload length
   LoRa.print(outgoing);                 // add payload
   LoRa.endPacket();                     // finish packet and send it
+  Serial.println("Lora Packet Sent");
+  LoRa.receive();                     // go back into receive mode
 }
+
 
 void onReceive(int packetSize) {
   if (packetSize == 0) return;          // if there's no packet, return
@@ -166,31 +168,6 @@ void onReceive(int packetSize) {
     return;                             // skip rest of function
   }
   
-  char topicBuf[50],dataBuf[4096];
-  
-  JsonObject& root = jsonBuffer.parseObject(incoming);
-  String topic = "sparrow_receive/" + root["key"].as<String>();
-  topic.toCharArray(topicBuf, 50);
-  incoming.toCharArray(dataBuf, 4096);
-  
-  client.publish(topicBuf,dataBuf);
-
-  topic = "sparrow_response/" + root["key"].as<String>();
-  topic.toCharArray(topicBuf, 50);
-  client.subscribe(topicBuf);
-  
-  topicsToSubscribe[subscribeIndex]=topic;
-  topicsToSubscribe[subscribeIndex++] = 1 << 7;
-  if(subscribeIndex >= 16){
-    subscribeIndex = subscribeIndex % 16;
-    subscribeFlag[subscribeIndex] = 0;
-  }
-  
-  // Test if parsing succeeds.
-  if (!root.success()) {
-    Serial.println("JSON parseObject() failed");
-    return;
-  }
   // if message is for this device, or broadcast, print details:
   Serial.println("Received from: 0x" + String(sender, HEX));
   Serial.println("Sent to: 0x" + String(recipient, HEX));
@@ -200,6 +177,49 @@ void onReceive(int packetSize) {
   Serial.println("RSSI: " + String(LoRa.packetRssi()));
   Serial.println("Snr: " + String(LoRa.packetSnr()));
   Serial.println();
+    
+  char topicBuf[50],dataBuf[4096];
+  
+  JsonObject& root = jsonBuffer.parseObject(incoming);
+  
+  // Test if parsing succeeds.
+  if (!root.success()) {
+    Serial.println("JSON parseObject() failed");
+    return;
+  }
+  
+  String key = root["key"];
+  String topic = "sparrow_receive/" + key;
+
+  Serial.println(key);
+  Serial.println(topic);
+/*
+  topic.toCharArray(topicBuf, topic.length()+1);
+  incoming.toCharArray(dataBuf, incoming.length()+1);
+  
+  Serial.println("Publishing to");
+  Serial.println(topicBuf);
+  Serial.println(dataBuf);
+*/ 
+  client.publish("abcd",(char*) incoming.c_str());
+  
+  topic = "sparrow_response/" + key;
+/*  
+  topic.toCharArray(topicBuf, 50);
+  Serial.println("Subscribing to");
+  Serial.println(topicBuf);
+*/
+  //client.subscribe((char*)topic.c_str());
+  
+  topicsToSubscribe[subscribeIndex]=topic;
+  topicsToSubscribe[subscribeIndex++] = 1 << 7;
+  if(subscribeIndex >= 16){
+    subscribeIndex = subscribeIndex % 16;
+    subscribeFlag[subscribeIndex] = 0;
+  }
+  
+
+
   
 }
 
