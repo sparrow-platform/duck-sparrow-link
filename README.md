@@ -9,7 +9,7 @@ appropriate mqtt topic so that it reaches the IBM watson backend. THe response i
 which is again sent back to Mama over LoRa and then is recieved by the smartphone
 
 <p align="center">
-<img  height=500 src="https://raw.githubusercontent.com/sparrow-platform/duck-sparrow-link/master/LoRaArchitecture.png"/>
+<img  max-height=500 src="https://raw.githubusercontent.com/sparrow-platform/duck-sparrow-link/master/LoRaArchitecture.png"/>
 </p>
 
 ## Steps for flashing the code
@@ -63,5 +63,5 @@ We tested cluster duck - Sparrow compatibility by connecting Sparrow mesh with 2
 Devices directly connected to a duck (ESP32) have <3 seconds network latency. Messages take time in Sparrow mesh because of the lazy AODV protocol implementation which prioritizes less battery consumption on smartphones over quicker message sync. 
 
 <p align="center">
-<img  height=500 src="https://raw.githubusercontent.com/sparrow-platform/duck-sparrow-link/master/SparrowESP32.jpg"/>
+<img  max-height=500 src="https://raw.githubusercontent.com/sparrow-platform/duck-sparrow-link/master/SparrowESP32.jpg"/>
 </p>
