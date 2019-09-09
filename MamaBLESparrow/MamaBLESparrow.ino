@@ -1,6 +1,4 @@
 // MamaBLESparrow
-// Copyright Ameya Apte 2019
-// MIT License
 //
 // This file is a part of Sparrow project and helps connect smartphone devices to a TTGO LoRa hardware
 //
