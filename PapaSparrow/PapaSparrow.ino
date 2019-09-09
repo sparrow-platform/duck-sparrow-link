@@ -1,7 +1,4 @@
 // PapaSparrow
-// Copyright Ameya Apte 2019
-// MIT License
-//
 // This file is a part of Sparrow project and helps connect internet with the Sparrow Mesh
 //
 // This code recieves messeges on LoRa from slave devices parses them and publishesh them to mqtt server for routing to IBM watson backend
