@@ -1,7 +1,4 @@
 // MamaWiFiSparrow
-// Copyright Ameya Apte 2019
-// MIT License
-//
 // This file is a part of Sparrow project and helps connect smartphone devices to a TTGO LoRa hardware via WiFi
 //
 // A HTTP server is served over the esp32 hardware, the messeges recieved on this interface are forwarded to LoRa and the messeges
